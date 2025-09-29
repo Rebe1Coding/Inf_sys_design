@@ -68,3 +68,4 @@ class Client:
         if not isinstance(value, (int, float)) or value < 0:
             raise ValueError("Сумма кредита должна быть неотрицательным числом")
         self.__credit_sum = float(value)
+    # ========== ВАЛИДАЦИЯ ==========
