@@ -1,0 +1,54 @@
+@startuml schema2
+' --- Стиль ---
+skinparam class {
+    BackgroundColor<<Client>> #AED6F1
+    BackgroundColor<<CreditType>> #A9DFBF
+    BackgroundColor<<Credit>> #F9E79F
+    BackgroundColor<<Payment>> #F5B7B1
+    BorderColor Black
+    FontSize 12
+}
+
+skinparam linetype ortho
+skinparam shadowing true
+
+' --- Сущности ---
+class Client <<Client>> {
+    +client_id : int <<PK>>
+    +name : string
+    +ownership_type : string
+    +address : string
+    +phone : string
+    +contact_person : string
+}
+
+class CreditType <<CreditType>> {
+    +credit_type_id : int <<PK>>
+    +name : string
+    +interest_rate : float
+    +term_months : int
+    +max_amount : float
+}
+
+class Credit <<Credit>> {
+    +credit_id : int <<PK>>
+    +client_id : int <<FK>>
+    +credit_type_id : int <<FK>>
+    +issue_date : date
+    +amount : float
+    +is_approved : bool
+}
+
+class Payment <<Payment>> {
+    +payment_id : int <<PK>>
+    +credit_id : int <<FK>>
+    +payment_date : date
+    +amount_paid : float
+}
+
+' --- Связи с Crow's Foot ---
+Client  o--{ Credit : имеет
+CreditType  o--{ Credit : используется
+Credit  o--{ Payment : включает
+
+@enduml
