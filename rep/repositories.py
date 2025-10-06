@@ -38,7 +38,7 @@ class ClientRepository(ABC):
         start_index = (n - 1) * k
         end_index = start_index + k
         # Возвращаем список кратких описаний
-        return [client.get_short_info() for client in self._clients[start_index:end_index]]
+        return [client.full_info() for client in self._clients[start_index:end_index]]
 
     
     def sort_by_field(self, field: str) -> None:
