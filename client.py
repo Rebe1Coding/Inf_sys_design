@@ -115,3 +115,19 @@ class Client:
         if len(parts) != 6:
             raise ValueError("Неверный формат строки для создания клиента")
         return cls(int(parts[0]), parts[1], parts[2], parts[3], parts[4], parts[5])
+    
+
+        # ========== ПРЕДСТАВЛЕНИЕ ОБЪЕКТА ==========
+
+    def full_info(self):
+        return (f"Клиент {self.name}, "
+                f"Форма собственности: {self.ownership_type}, "
+                f"Адрес: {self.address}, "
+                f"Телефон: {self.phone}, "
+                f"Контактное лицо: {self.contact_person}")
+
+    def __str__(self):
+        return f"{self.name} ({self.ownership_type})"
+
+    def __eq__(self, other):
+        return isinstance(other, Client) and self.client_id == other.client_id
