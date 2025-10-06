@@ -100,3 +100,18 @@ class Client:
             raise ValueError("Телефон должен содержать от 7 до 15 цифр и может начинаться с +")
     
         return cleaned_phone
+    
+    # ========== ПЕРЕГРУЗКИ КОНСТРУКТОРА ==========
+
+    @classmethod
+    def from_json(cls, json_str: str):
+        data = json.loads(json_str)
+        return cls(**data)
+
+    @classmethod
+    def from_string(cls, data_str: str):
+        # строка вида: "1;ООО Ромашка;ООО;Москва, ул. Пушкина, 10;+79995553322;Иванов Иван Иванович"
+        parts = data_str.split(";")
+        if len(parts) != 6:
+            raise ValueError("Неверный формат строки для создания клиента")
+        return cls(int(parts[0]), parts[1], parts[2], parts[3], parts[4], parts[5])
