@@ -131,3 +131,31 @@ class Client:
 
     def __eq__(self, other):
         return isinstance(other, Client) and self.client_id == other.client_id
+    
+
+
+class ShortClient:
+    def __init__(self, client: Client):
+        self._client = client  # храним ссылку на оригинальный объект
+    
+    @property
+    def client_id(self):
+        return self._client.client_id
+    
+    @property
+    def name(self):
+        return self._client.name
+    
+    @property
+    def ownership_type(self):
+        return self._client.ownership_type
+    
+    @property
+    def phone(self):
+        return self._client.phone
+    
+    def __str__(self):
+        return f"{self.name}, тел.: {self.phone}"
+    
+    def full_info(self):
+        return f"{self.name} ({self.ownership_type}) - {self.phone}"  
