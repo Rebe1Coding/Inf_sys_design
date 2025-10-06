@@ -68,3 +68,35 @@ class Client:
         if not isinstance(value, (int, float)) or value < 0:
             raise ValueError("Сумма кредита должна быть неотрицательным числом")
         self.__credit_sum = float(value)
+    
+    # ========== ВАЛИДАЦИЯ ==========
+      
+
+    @staticmethod
+    def validate_id(client_id: int) -> int:
+        if not isinstance(client_id, int) or client_id <= 0:
+            raise ValueError("ID клиента должен быть положительным числом")
+        return client_id
+
+    @staticmethod
+    def validate_name(name: str) -> str:
+        if not re.match(r'^[А-ЯЁ][а-яёА-ЯЁ\s\.\-]+$', name):
+            raise ValueError("Название/ФИО должно начинаться с заглавной буквы и содержать только буквы, пробелы, тире или точки")
+        return name.strip()
+
+    @staticmethod
+    def validate_address(address: str) -> str:
+        if len(address.strip()) < 5:
+            raise ValueError("Адрес слишком короткий")
+        return address.strip()
+
+    @staticmethod
+    def validate_phone(phone: str) -> str:
+    # Удаляем все символы, кроме цифр и знака +
+        cleaned_phone = re.sub(r'[^\d+]', '', phone)
+    
+    # Проверяем, что номер содержит от 7 до 15 цифр и может начинаться с +
+        if not re.match(r'^\+?\d{7,15}$', cleaned_phone):
+            raise ValueError("Телефон должен содержать от 7 до 15 цифр и может начинаться с +")
+    
+        return cleaned_phone
