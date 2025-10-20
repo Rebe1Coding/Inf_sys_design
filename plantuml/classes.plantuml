@@ -1,4 +1,4 @@
-@startuml
+@startuml classes.plantuml
 
 abstract class ClientRepository {
   # _clients: List
