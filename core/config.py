@@ -7,7 +7,7 @@ class Settings(BaseSettings):
         PASSWORD:str
         HOST:str
         PORT:str
-        DATABASE = "postgres"
+        DATABASE:str
         DATABASE_URL:str
         
 
