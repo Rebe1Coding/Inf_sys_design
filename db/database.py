@@ -15,14 +15,15 @@ class DatabaseConnection:
             cls._instance = super(DatabaseConnection, cls).__new__(cls)
         return cls._instance
 
-    def __init__(self, dbname, user, password, host):
+    def __init__(self, dbname, user, password, host, port):
         # Чтобы __init__ не пересоздавал соединение много раз
         if self._connection is None:
             self._connection = psycopg2.connect(
                 dbname=dbname,
                 user=user,
                 password=password,
-                host=host
+                host=host,
+                port=port
             )
 
     def get_connection(self) -> connection:
@@ -35,4 +36,4 @@ class DatabaseConnection:
 
 
 
-db_conn = DatabaseConnection(settings.DATABASE, settings.USER, settings.PASSWORD, settings.HOST)
+db_conn = DatabaseConnection(settings.DATABASE, settings.USER, settings.PASSWORD, settings.HOST,settings.PORT)
