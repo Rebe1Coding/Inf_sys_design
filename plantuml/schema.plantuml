@@ -1,0 +1,65 @@
+@startuml myClassASS
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam linetype ortho
+skinparam classFontSize 12
+skinparam classFontName "Consolas"
+
+' ========== Базовый класс Client ==========
+class Client {
+    -- ПОЛЯ --
+    - __client_id: int
+    - __name: str
+    - __ownership_type: str
+    - __address: str
+    - __phone: str
+    - __contact_person: str
+
+    -- КОНСТРУКТОР --
+    + __init__(client_id: int, name: str, ownership_type: str, address: str, phone: str, contact_person: str)
+
+    -- ВАЛИДАЦИЯ (static) --
+    + validate_id(client_id: int): int
+    + validate_name(name: str): str
+    + validate_address(address: str): str
+    + validate_phone(phone: str): str
+
+    -- ГЕТТЕРЫ / СЕТТЕРЫ --
+    + client_id: int {getter, setter}
+    + name: str {getter, setter}
+    + ownership_type: str {getter, setter}
+    + address: str {getter, setter}
+    + phone: str {getter, setter}
+    + contact_person: str {getter, setter}
+
+    -- ПРЕДСТАВЛЕНИЕ ОБЪЕКТА --
+    + full_info(): str
+    + __str__(): str
+    + __eq__(other: object): bool
+
+    -- ПЕРЕГРУЗКИ КОНСТРУКТОРА (classmethod) --
+    + from_json(json_str: str): Client
+    + from_string(data_str: str): Client
+}
+
+' ========== Класс ShortClient (КОМПОЗИЦИЯ) ==========
+class ShortClient {
+    -- ПОЛЕ --
+    - _client: Client
+
+    -- КОНСТРУКТОР --
+    + __init__(client: Client)
+
+    -- ГЕТТЕРЫ (только необходимые) --
+    + client_id: int {getter}
+    + name: str {getter}
+    + ownership_type: str {getter}
+    + phone: str {getter}
+
+    -- ПРЕДСТАВЛЕНИЕ ОБЪЕКТА --
+    + __str__(): str
+    + full_info(): str
+}
+
+' ========== КОМПОЗИЦИЯ ==========
+ShortClient o-- Client : содержит

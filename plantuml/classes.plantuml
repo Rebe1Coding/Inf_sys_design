@@ -1,0 +1,35 @@
+@startuml
+
+abstract class ClientRepository {
+  # _clients: List
+  # _next_id: int
+  --
+  + get_by_id()
+  + get_k_n_short_list()
+  + sort_by_field()
+  + add_client()
+  + update_client()
+  + delete_client()
+  + get_count()
+  # read_all()
+  # write_all()
+}
+
+class Client_rep_json {
+  - _filename: str
+  --
+  + read_all()
+  + write_all()
+}
+
+class Client_rep_yaml {
+  - _filename: str
+  --
+  + read_all()
+  + write_all()
+}
+
+ClientRepository <|-- Client_rep_json
+ClientRepository <|-- Client_rep_yaml
+
+@enduml
