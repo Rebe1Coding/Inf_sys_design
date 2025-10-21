@@ -1,4 +1,4 @@
-from rep.repositories import ClientRepository
+from repositories import ClientRepository
 import yaml
 from client import Client
 

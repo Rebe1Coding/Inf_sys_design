@@ -1,5 +1,5 @@
 import json
-from rep.repositories import ClientRepository
+from repositories import ClientRepository
 from client import Client
 
 
