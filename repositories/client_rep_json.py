@@ -1,6 +1,6 @@
 import json
-from repositories import ClientRepository
-from client import Client
+from repositories.repository import ClientRepository
+from core.models.client import Client
 
 
 class Client_rep_json(ClientRepository):

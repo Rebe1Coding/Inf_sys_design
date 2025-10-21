@@ -2,7 +2,8 @@
 import psycopg2
 from psycopg2 import sql
 from typing import List, Optional
-from client import Client
+from core.models.client import Client
+
 
 class Client_rep_DB:
     """Реализация репозитория для работы с PostgreSQL."""
