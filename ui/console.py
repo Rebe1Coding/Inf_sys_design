@@ -1,15 +1,16 @@
 import os
 import sys
 from datetime import datetime
-from client import Client, ShortClient
-from repositories.repositories import ClientRepository, use_client_repo_json, use_client_repo_yaml, use_client_repo_db
+from core.models.client import Client, ShortClient
+from repositories.manager import use_client_repo_json, use_client_repo_yaml, use_client_repo_db
 
-class RepositoryManager:
+
+class Manager:
     """Класс для управления репозиториями клиентов"""
     
     def __init__(self):
         self.current_repo = None
-        self.repo_type = None
+        self.repo_type = None 
         self.repo_name = None
         self.history = []
     
