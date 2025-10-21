@@ -8,7 +8,8 @@ class Settings(BaseSettings):
         HOST:str
         PORT:str
         DATABASE:str
-        DATABASE_URL:str
+        POOL_MODE:str
+        
         
 
 
