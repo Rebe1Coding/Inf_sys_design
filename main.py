@@ -1,4 +1,4 @@
-from ui.console import Manager
+from ui.console import ConsoleUI
 import sys
 
 
@@ -8,7 +8,7 @@ import sys
 def main():
     """Основная функция программы"""
     try:
-        manager = Manager()
+        manager = ConsoleUI()
         manager.run()
     except Exception as e:
         print(f"💥 Критическая ошибка: {e}")

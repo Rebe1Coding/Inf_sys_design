@@ -5,7 +5,7 @@ from core.models.client import Client, ShortClient
 from repositories.manager import use_client_repo_json, use_client_repo_yaml, use_client_repo_db
 
 
-class Manager:
+class ConsoleUI:
     """Класс для управления репозиториями клиентов"""
     
     def __init__(self):
