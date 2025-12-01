@@ -16,7 +16,7 @@ class FilteredClientDBRepository:
     def get_k_n_short_list(self, k: int, n: int) -> list[str]:
         """Возвращает k элементов, начиная с n-й страницы, с учётом фильтра и сортировки."""
         offset = (n - 1) * k
-        
+
         query = "SELECT name, contact_person FROM clients"
         if self._filter:
             query += f" WHERE {self._filter}"
@@ -36,7 +36,7 @@ class FilteredClientDBRepository:
             cur.execute(query)
             return cur.fetchone()[0]
 
-    # Остальные методы просто делегируем (можно не писать, если не используются в задании)
+    # Остальные методы просто делегируем 
     def get_by_id(self, client_id: int):
         return self._db_repo.get_by_id(client_id)
 
