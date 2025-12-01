@@ -2,8 +2,8 @@ from repositories.client_rep_json import Client_rep_json
 from repositories.client_rep_yaml import Client_rep_yaml    
 from repositories.client_rep_db import Client_rep_DB
 from repositories.repository import ClientDBAdapter
-from core.models.client import Client  
-from core.db.database import db_conn
+from models.client import Client  
+from config.db_conn import db_conn
 
 
 

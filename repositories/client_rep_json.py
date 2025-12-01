@@ -1,6 +1,6 @@
 import json
 from repositories.repository import ClientRepository
-from core.models.client import Client
+from models.client import Client
 
 
 class Client_rep_json(ClientRepository):
@@ -9,7 +9,7 @@ class Client_rep_json(ClientRepository):
     def __init__(self, filename: str):
         super().__init__()
         self._filename = filename
-        self.read_all()  # Загружаем данные при создании репозитория
+        self.read_all()  
 
     def read_all(self) -> None:
         try:

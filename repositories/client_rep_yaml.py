@@ -1,6 +1,6 @@
 from repositories.repository import ClientRepository
 import yaml
-from core.models.client import Client
+from models.client import Client
 
 
 class Client_rep_yaml(ClientRepository):

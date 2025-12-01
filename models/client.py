@@ -11,8 +11,21 @@ class Client:
         self.__address = self.validate_address(address)
         self.__phone = self.validate_phone(phone)
         self.__contact_person = self.validate_name(contact_person)
-        # ========== ГЕТТЕРЫ / СЕТТЕРЫ ==========
+     
 
+    @classmethod
+    def from_json(cls, json_str: str):
+        data = json.loads(json_str)
+        return cls(**data)
+
+    @classmethod
+    def from_string(cls, data_str: str):
+        # строка вида: "1;ООО Ромашка;ООО;Москва, ул. Пушкина, 10;+79995553322;Иванов Иван Иванович"
+        parts = data_str.split(";")
+        if len(parts) != 6:
+            raise ValueError("Неверный формат строки для создания клиента")
+        return cls(int(parts[0]), parts[1], parts[2], parts[3], parts[4], parts[5])
+    
 
     @property
     def client_id(self):
@@ -69,7 +82,6 @@ class Client:
             raise ValueError("Сумма кредита должна быть неотрицательным числом")
         self.__credit_sum = float(value)
     
-    # ========== ВАЛИДАЦИЯ ==========
       
 
     @staticmethod
@@ -103,21 +115,8 @@ class Client:
     
     # ========== ПЕРЕГРУЗКИ КОНСТРУКТОРА ==========
 
-    @classmethod
-    def from_json(cls, json_str: str):
-        data = json.loads(json_str)
-        return cls(**data)
-
-    @classmethod
-    def from_string(cls, data_str: str):
-        # строка вида: "1;ООО Ромашка;ООО;Москва, ул. Пушкина, 10;+79995553322;Иванов Иван Иванович"
-        parts = data_str.split(";")
-        if len(parts) != 6:
-            raise ValueError("Неверный формат строки для создания клиента")
-        return cls(int(parts[0]), parts[1], parts[2], parts[3], parts[4], parts[5])
     
 
-        # ========== ПРЕДСТАВЛЕНИЕ ОБЪЕКТА ==========
 
     def full_info(self):
         return (f"Клиент {self.name}, "
@@ -136,7 +135,7 @@ class Client:
 
 class ShortClient:
     def __init__(self, client: Client):
-        self._client = client  # храним ссылку на оригинальный объект
+        self._client = client 
     
     @property
     def client_id(self):

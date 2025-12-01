@@ -1,15 +1,15 @@
 import json
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from core.models.client import Client, ShortClient
+from models.client import Client, ShortClient
 
 
 class ClientRepository(ABC):
     """Абстрактный базовый класс для всех репозиториев клиентов."""
 
     def __init__(self):
-        self._clients = []  # Список для хранения объектов Client в памяти
-        self._next_id = 1   # Счётчик для генерации нового ID
+        self._clients = []  
+        self._next_id = 1   
 
     def _get_next_id(self):
         next_id = self._next_id
@@ -102,19 +102,22 @@ class ClientDBAdapter(ClientRepository):
     """Адаптер для подключения Client_rep_DB к иерархии репозиториев."""
 
     def __init__(self, db_repository):
-        # Вместо наследования используем композицию (делегация!)
+        super().__init__()
         self._db_repo = db_repository
+       
 
+    def read_all(self):
+        cursor = self.db_repo._db.cursor()
+        with cursor as cur:
+            cur.execute("SELECT * FROM clients ORDER BY clients_id")
+            rows = cur.fetchall()
+            self._clients = [Client(*row) for row in rows]
 
-    def read_all(self) -> None:
-        #??????
+    def write_all(self):
+        # В данном адаптере запись не требуется, так как операции
+        # добавления, обновления и удаления сразу отражаются в БД.
         pass
 
-    def write_all(self) -> None:
-        #??????
-        pass
-
-    # Далее мы делегируем все вызовы методов адаптируемому объекту (_db_repo)
     def get_by_id(self, client_id: int) -> Optional[Client]:
         return self._db_repo.get_by_id(client_id)
 

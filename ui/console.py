@@ -1,7 +1,7 @@
 import os
 import sys
 from datetime import datetime
-from core.models.client import Client, ShortClient
+from models.client import Client, ShortClient
 from repositories.manager import use_client_repo_json, use_client_repo_yaml, use_client_repo_db
 
 

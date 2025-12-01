@@ -1,12 +1,11 @@
-# database.py
 import psycopg2
 from psycopg2.extensions import connection
-from core.config import settings
+from config.settings import settings
 
 
 
 class DatabaseConnection:
-    """Класс для управления подключением к БД (Singleton)."""
+    
     _instance = None
     _connection: connection = None
 
@@ -16,7 +15,6 @@ class DatabaseConnection:
         return cls._instance
 
     def __init__(self, dbname, user, password, host, port):
-        # Чтобы __init__ не пересоздавал соединение много раз
         if self._connection is None:
             self._connection = psycopg2.connect(
                 dbname=dbname,

@@ -1,15 +1,15 @@
-# db_repository.py
 import psycopg2
 from psycopg2 import sql
 from typing import List, Optional
-from core.models.client import Client
+from models.client import Client
 
 
 class Client_rep_DB:
     """Реализация репозитория для работы с PostgreSQL."""
 
     def __init__(self, db_connection):
-        self._db = db_connection
+        
+        self._db = db_connection.get_connection()
 
     def get_by_id(self, client_id: int) -> Optional[Client]:
         query = "SELECT * FROM clients WHERE client_id = %s;"

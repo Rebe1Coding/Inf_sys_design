@@ -10,10 +10,6 @@ class Settings(BaseSettings):
         DATABASE:str
         POOL_MODE:str
         
-        
-
-
-
         class Config:
             env_file =".env"
 
