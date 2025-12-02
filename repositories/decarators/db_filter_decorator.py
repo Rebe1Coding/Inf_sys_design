@@ -1,5 +1,6 @@
 # repositories/db_filter_decorator.py
 
+
 class FilteredClientDBRepository:
     """Декоратор: добавляет фильтрацию и сортировку к Client_rep_DB."""
 
@@ -36,7 +37,7 @@ class FilteredClientDBRepository:
             cur.execute(query)
             return cur.fetchone()[0]
 
-    # Остальные методы просто делегируем 
+    # Остальные методы просто делегируем
     def get_by_id(self, client_id: int):
         return self._db_repo.get_by_id(client_id)
 

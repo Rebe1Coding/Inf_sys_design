@@ -1,0 +1,5 @@
+# .ruff.toml
+select = ["E", "W", "F", "I", "B", "C4", "T10", "T20"]
+ignore = ["E501"] 
+line-length = 88
+target-version = "py313"

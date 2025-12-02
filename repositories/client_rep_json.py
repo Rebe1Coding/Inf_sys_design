@@ -9,11 +9,11 @@ class Client_rep_json(ClientRepository):
     def __init__(self, filename: str):
         super().__init__()
         self._filename = filename
-        self.read_all()  
+        self.read_all()
 
     def read_all(self) -> None:
         try:
-            with open(self._filename, 'r', encoding='utf-8') as f:
+            with open(self._filename, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 self._clients = []
                 for item in data:
@@ -32,13 +32,13 @@ class Client_rep_json(ClientRepository):
         for client in self._clients:
             # Преобразуем каждый объект Client в словарь
             client_dict = {
-                'client_id': client.client_id,
-                'name': client.name,
-                'ownership_type': client.ownership_type,
-                'address': client.address,
-                'phone': client.phone,
-                'contact_person': client.contact_person
+                "client_id": client.client_id,
+                "name": client.name,
+                "ownership_type": client.ownership_type,
+                "address": client.address,
+                "phone": client.phone,
+                "contact_person": client.contact_person,
             }
             data.append(client_dict)
-        with open(self._filename, 'w', encoding='utf-8') as f:
+        with open(self._filename, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)

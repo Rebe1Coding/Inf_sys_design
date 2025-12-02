@@ -1,14 +1,11 @@
 from repositories.client_rep_json import Client_rep_json
-from repositories.client_rep_yaml import Client_rep_yaml    
+from repositories.client_rep_yaml import Client_rep_yaml
 from repositories.client_rep_db import Client_rep_DB
 from repositories.repository import ClientDBAdapter
-from models.client import Client  
 from config.db_conn import db_conn
 
 
-
-
-def use_client_repo_json(filename = "./data/clients.json") -> None:
+def use_client_repo_json(filename="./data/clients.json") -> None:
     """
     Демонстрация использования Client_rep_json:
     - загрузка из файла
@@ -27,7 +24,7 @@ def use_client_repo_json(filename = "./data/clients.json") -> None:
         "ownership_type": "ООО",
         "address": "г.Тест, ул. Новая, 1",
         "phone": "+70000000001",
-        "contact_person": "Новиков Н.Н."
+        "contact_person": "Новиков Н.Н.",
     }
     new_client = repo.add_client(new_data)
     print("\nДобавлен клиент:")
@@ -37,7 +34,10 @@ def use_client_repo_json(filename = "./data/clients.json") -> None:
     repo.write_all()
 
     # Обновим только что добавленного клиента
-    if repo.update_client(new_client.client_id, {"address": "г.Тест, ул. Новая, 2", "phone": "+70000000002"}):
+    if repo.update_client(
+        new_client.client_id,
+        {"address": "г.Тест, ул. Новая, 2", "phone": "+70000000002"},
+    ):
         print("\nПосле обновления:")
         print(repo.get_by_id(new_client.client_id).full_info())
 
@@ -66,8 +66,7 @@ def use_client_repo_json(filename = "./data/clients.json") -> None:
     print("\nОперации с репозиторием завершены.")
 
 
-
-def use_client_repo_yaml(filename = "./data/clients.yaml") -> None:
+def use_client_repo_yaml(filename="./data/clients.yaml") -> None:
     """
     Демонстрация использования Client_rep_yaml:
     - загрузка из файла
@@ -86,7 +85,7 @@ def use_client_repo_yaml(filename = "./data/clients.yaml") -> None:
         "ownership_type": "ООО",
         "address": "г.Тест, ул. Новая, 1",
         "phone": "+70000000001",
-        "contact_person": "Новиков Н.Н."
+        "contact_person": "Новиков Н.Н.",
     }
     new_client = repo.add_client(new_data)
     print("\nДобавлен клиент:")
@@ -96,7 +95,10 @@ def use_client_repo_yaml(filename = "./data/clients.yaml") -> None:
     repo.write_all()
 
     # Обновим только что добавленного клиента
-    if repo.update_client(new_client.client_id, {"address": "г.Тест, ул. Новая, 2", "phone": "+70000000002"}):
+    if repo.update_client(
+        new_client.client_id,
+        {"address": "г.Тест, ул. Новая, 2", "phone": "+70000000002"},
+    ):
         print("\nПосле обновления:")
         print(repo.get_by_id(new_client.client_id).full_info())
 
@@ -124,7 +126,8 @@ def use_client_repo_yaml(filename = "./data/clients.yaml") -> None:
     repo.write_all()
     print("\nОперации с репозиторием завершены.")
 
-def use_client_repo_db(db_params = db_conn) -> None:
+
+def use_client_repo_db(db_params=db_conn) -> None:
     """
     Демонстрация использования Client_rep_DB через адаптер ClientDBAdapter:
     - загрузка из базы данных
@@ -138,21 +141,23 @@ def use_client_repo_db(db_params = db_conn) -> None:
     for c in repo._clients:
         print(c.full_info())
 
-    # Добавим нового клиента через add_client 
+    # Добавим нового клиента через add_client
     new_data = {
         "name": "ООО Новое",
         "ownership_type": "ООО",
         "address": "г.Тест, ул. Новая, 1",
         "phone": "+70000000001",
-        "contact_person": "Новиков Н.Н."
+        "contact_person": "Новиков Н.Н.",
     }
     new_client = repo.add_client(new_data)
     print("\nДобавлен клиент:")
     print(new_client.full_info())
 
-
     # Обновим только что добавленного клиента
-    if repo.update_client(new_client.client_id, {"address": "г.Тест, ул. Новая, 2", "phone": "+70000000002"}):
+    if repo.update_client(
+        new_client.client_id,
+        {"address": "г.Тест, ул. Новая, 2", "phone": "+70000000002"},
+    ):
         print("\nПосле обновления:")
         print(repo.get_by_id(new_client.client_id).full_info())
 

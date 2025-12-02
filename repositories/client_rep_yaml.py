@@ -13,8 +13,10 @@ class Client_rep_yaml(ClientRepository):
 
     def read_all(self) -> None:
         try:
-            with open(self._path, 'r', encoding='utf-8') as f:
-                data = yaml.safe_load(f) or []  # Если файл пустой, safe_load вернёт None
+            with open(self._path, "r", encoding="utf-8") as f:
+                data = (
+                    yaml.safe_load(f) or []
+                )  # Если файл пустой, safe_load вернёт None
                 self._clients = []
                 for item in data:
                     client = Client(**item)
@@ -28,13 +30,13 @@ class Client_rep_yaml(ClientRepository):
         data = []
         for client in self._clients:
             client_dict = {
-                'client_id': client.client_id,
-                'name': client.name,
-                'ownership_type': client.ownership_type,
-                'address': client.address,
-                'phone': client.phone,
-                'contact_person': client.contact_person
+                "client_id": client.client_id,
+                "name": client.name,
+                "ownership_type": client.ownership_type,
+                "address": client.address,
+                "phone": client.phone,
+                "contact_person": client.contact_person,
             }
             data.append(client_dict)
-        with open(self._path, 'w', encoding='utf-8') as f:
+        with open(self._path, "w", encoding="utf-8") as f:
             yaml.dump(data, f, allow_unicode=True, default_flow_style=False)

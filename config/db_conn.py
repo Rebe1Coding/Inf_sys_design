@@ -3,9 +3,8 @@ from psycopg2.extensions import connection
 from config.settings import settings
 
 
-
 class DatabaseConnection:
-    
+
     _instance = None
     _connection: connection = None
 
@@ -17,11 +16,7 @@ class DatabaseConnection:
     def __init__(self, dbname, user, password, host, port):
         if self._connection is None:
             self._connection = psycopg2.connect(
-                dbname=dbname,
-                user=user,
-                password=password,
-                host=host,
-                port=port
+                dbname=dbname, user=user, password=password, host=host, port=port
             )
 
     def get_connection(self) -> connection:
@@ -33,5 +28,6 @@ class DatabaseConnection:
             self._connection = None
 
 
-
-db_conn = DatabaseConnection(settings.DATABASE, settings.USER, settings.PASSWORD, settings.HOST,settings.PORT)
+db_conn = DatabaseConnection(
+    settings.DATABASE, settings.USER, settings.PASSWORD, settings.HOST, settings.PORT
+)

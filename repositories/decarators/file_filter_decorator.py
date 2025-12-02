@@ -1,5 +1,6 @@
 # repositories/file_filter_decorator.py
 
+
 class FilteredFileRepository:
     """Декоратор для файловых репозиториев: добавляет фильтрацию и сортировку."""
 
@@ -11,19 +12,19 @@ class FilteredFileRepository:
         :param reverse: сортировать в обратном порядке?
         """
         self._repo = file_repo
-        self._filter = filter_func or (lambda x: True)  
+        self._filter = filter_func or (lambda x: True)
         self._sort_key = sort_key
         self._reverse = reverse
 
     def get_k_n_short_list(self, k: int, n: int) -> list[str]:
-     
-        all_clients = self._repo._clients  
+
+        all_clients = self._repo._clients
         filtered = [c for c in all_clients if self._filter(c)]
         if self._sort_key:
             filtered.sort(key=self._sort_key, reverse=self._reverse)
         start = (n - 1) * k
-        page = filtered[start:start + k]
-        
+        page = filtered[start : start + k]
+
         return [client.full_info() for client in page]
 
     def get_count(self) -> int:

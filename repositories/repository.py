@@ -1,15 +1,14 @@
-import json
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from models.client import Client, ShortClient
+from models.client import Client
 
 
 class ClientRepository(ABC):
     """Абстрактный базовый класс для всех репозиториев клиентов."""
 
     def __init__(self):
-        self._clients = []  
-        self._next_id = 1   
+        self._clients = []
+        self._next_id = 1
 
     def _get_next_id(self):
         next_id = self._next_id
@@ -41,26 +40,26 @@ class ClientRepository(ABC):
         # Возвращаем список кратких описаний
         return [client.full_info() for client in self._clients[start_index:end_index]]
 
-    
     def sort_by_field(self, field: str) -> None:
 
-    
         def normalize_name(name: str) -> str:
 
-            prefixes = ['ООО', 'АО', 'ЗАО', 'ОАО', 'ПАО', 'ИП', 'НКО', 'МУП']
-        
+            prefixes = ["ООО", "АО", "ЗАО", "ОАО", "ПАО", "ИП", "НКО", "МУП"]
+
             for prefix in prefixes:
                 if name.startswith(prefix):
-                # Удаляем префикс и следующий пробел если есть
-                    normalized = name[len(prefix):].lstrip()
+                    # Удаляем префикс и следующий пробел если есть
+                    normalized = name[len(prefix) :].lstrip()
                     return normalized if normalized else name
-        
+
             return name
 
         if hasattr(Client, field):
-            if field == 'name':
-            # Для поля name используем нормализованную версию
-                self._clients.sort(key=lambda client: normalize_name(getattr(client, field)))
+            if field == "name":
+                # Для поля name используем нормализованную версию
+                self._clients.sort(
+                    key=lambda client: normalize_name(getattr(client, field))
+                )
             else:
                 self._clients.sort(key=lambda client: getattr(client, field))
         else:
@@ -97,14 +96,12 @@ class ClientRepository(ABC):
         return len(self._clients)
 
 
-
 class ClientDBAdapter(ClientRepository):
     """Адаптер для подключения Client_rep_DB к иерархии репозиториев."""
 
     def __init__(self, db_repository):
         super().__init__()
         self._db_repo = db_repository
-       
 
     def read_all(self):
         cursor = self.db_repo._db.cursor()
@@ -135,7 +132,3 @@ class ClientDBAdapter(ClientRepository):
 
     def get_count(self) -> int:
         return self._db_repo.get_count()
-
-
-
-
