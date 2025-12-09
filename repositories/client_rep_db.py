@@ -8,10 +8,11 @@ class Client_rep_DB:
 
     def __init__(self, db_connection):
 
-        self._db = db_connection.get_connection()
+        self._db = db_connection
 
     def get_by_id(self, client_id: int) -> Optional[Client]:
         query = "SELECT * FROM clients WHERE client_id = %s;"
+        self._db.get_connection()
         cursor = self._db.cursor()
         cursor.execute(query, (client_id,))
         row = cursor.fetchone()
@@ -25,6 +26,7 @@ class Client_rep_DB:
         # Используем LIMIT и OFFSET для пагинации
         query = "SELECT client_id, name, contact_person FROM clients ORDER BY client_id LIMIT %s OFFSET %s;"
         offset = (n - 1) * k
+        self._db.get_connection()
         cursor = self._db.cursor()
         cursor.execute(query, (k, offset))
         rows = cursor.fetchall()
@@ -44,6 +46,7 @@ class Client_rep_DB:
             VALUES (%(name)s, %(ownership_type)s, %(address)s, %(phone)s, %(contact_person)s)
             RETURNING client_id;
         """
+        self._db.get_connection()
         cursor = self._db.cursor()
         cursor.execute(query, client_data)
         new_id = cursor.fetchone()[0]
@@ -62,6 +65,7 @@ class Client_rep_DB:
         query = sql.SQL("UPDATE clients SET {} WHERE client_id = %s;").format(
             sql.SQL(set_clause)
         )
+        self._db.get_connection()
         cursor = self._db.cursor()
         cursor.execute(query, values)
         rows_affected = cursor.rowcount
@@ -71,6 +75,7 @@ class Client_rep_DB:
 
     def delete_client(self, client_id: int) -> bool:
         query = "DELETE FROM clients WHERE client_id = %s;"
+        self._db.get_connection()
         cursor = self._db.cursor()
         cursor.execute(query, (client_id,))
         rows_affected = cursor.rowcount
@@ -80,6 +85,7 @@ class Client_rep_DB:
 
     def get_count(self) -> int:
         query = "SELECT COUNT(*) FROM clients;"
+        self._db.get_connection()
         cursor = self._db.cursor()
         cursor.execute(query)
         count = cursor.fetchone()[0]

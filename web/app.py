@@ -23,8 +23,8 @@ from web.controllers.form_controller import FormController
 app = FastAPI(title="Client Management System")
 
 # Подключаем статические файлы и шаблоны
-app.mount("/static", StaticFiles(directory="web/static"), name="static")
-templates = Jinja2Templates(directory="web/templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
 # Инициализация репозитория с паттерном Наблюдатель
 db_repo = Client_rep_DB(db_conn)
