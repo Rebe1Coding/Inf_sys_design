@@ -110,7 +110,6 @@ class ClientDBAdapter(ClientRepository):
         with cursor as cur:
             cur.execute("SELECT * FROM clients ORDER BY client_id")
             rows = cur.fetchall()
-            print(rows)
             self._clients = [Client(*row) for row in rows]
 
     def write_all(self):
@@ -121,7 +120,7 @@ class ClientDBAdapter(ClientRepository):
     def get_by_id(self, client_id: int) -> Optional[Client]:
         return self._db_repo.get_by_id(client_id)
 
-    def get_k_n_short_list(self, k: int, n: int) -> List[str]:
+    def get_k_n_short_list(self, k: int, n: int) -> List[dict]:
         return self._db_repo.get_k_n_short_list(k, n)
 
     def add_client(self, client_data: dict) -> Client:

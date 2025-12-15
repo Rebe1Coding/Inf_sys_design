@@ -62,27 +62,22 @@ function renderClientsTable(clients) {
     }
 
     tbody.innerHTML = clients.map((client, index) => {
-        // Парсим строку формата "Название (Контактное лицо)"
-        const parts = client.match(/^(.+?)\s*\((.+?)\)$/);
-        const name = parts ? parts[1] : client;
-        const contact = parts ? parts[2] : '';
-        
+        const rowIndex = currentPage * pageSize - pageSize + index + 1;
+
         return `
-            <tr onclick="showClientDetail(${currentPage * pageSize - pageSize + index + 1})">
-                <td>${currentPage * pageSize - pageSize + index + 1}</td>
-                <td>${name}</td>
-                <td>-</td>
-                <td>-</td>
+            <tr onclick="showClientDetail(${client.client_id})">
+                <td>${rowIndex}</td>
+                <td>${client.name}</td>
+                <td>${client.contact_person || '-'}</td>
                 <td class="actions" onclick="event.stopPropagation()">
-                    <button class="btn btn-info" onclick="showClientDetail(${currentPage * pageSize - pageSize + index + 1})">Детали</button>
-                    <button class="btn btn-success" onclick="openFormModal('edit', ${currentPage * pageSize - pageSize + index + 1})">Изменить</button>
-                    <button class="btn btn-danger" onclick="deleteClient(${currentPage * pageSize - pageSize + index + 1})">Удалить</button>
+                    <button class="btn btn-info" onclick="showClientDetail(${client.client_id})">Детали</button>
+                    <button class="btn btn-success" onclick="openFormModal('edit', ${client.client_id})">Изменить</button>
+                    <button class="btn btn-danger" onclick="deleteClient(${client.client_id})">Удалить</button>
                 </td>
             </tr>
         `;
     }).join('');
 }
-
 /**
  * Отображение пагинации
  */
