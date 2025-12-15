@@ -31,12 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
 /**
  * Загрузка списка клиентов
  */
-window.loadClients =  function() {
+window.loadClients = async function() {
     const tbody = document.getElementById('clientsTableBody');
     tbody.innerHTML = '<tr><td colspan="5" class="loading">Загрузка</td></tr>';
 
     try {
-        const data =  API.getClients(currentPage, pageSize, currentFilter, currentSort);
+        const data = await API.getClients(currentPage, pageSize, currentFilter, currentSort);
         
         // Отображаем клиентов
         renderClientsTable(data.clients);
@@ -125,7 +125,7 @@ function changePage(page) {
 /**
  * Показать детальную информацию о клиенте
  */
- function showClientDetail(clientId) {
+async function showClientDetail(clientId) {
     const modal = document.getElementById('detailModal');
     const body = document.getElementById('detailModalBody');
     
@@ -133,7 +133,7 @@ function changePage(page) {
     modal.classList.add('show');
 
     try {
-        const client =  API.getClientDetail(clientId);
+        const client = await API.getClientDetail(clientId);
         
         body.innerHTML = `
             <div class="detail-item">
@@ -176,7 +176,7 @@ function closeDetailModal() {
 /**
  * Открыть модальное окно формы
  */
-function openFormModal(mode, clientId = null) {
+async function openFormModal(mode, clientId = null) {
     const modal = document.getElementById('formModal');
     const title = document.getElementById('formModalTitle');
     const form = document.getElementById('clientForm');
@@ -195,7 +195,7 @@ function openFormModal(mode, clientId = null) {
         title.textContent = 'Редактирование клиента';
         
         try {
-            const client =  API.getClientDetail(clientId);
+            const client = await API.getClientDetail(clientId);
             
             document.getElementById('clientId').value = client.client_id;
             document.getElementById('name').value = client.name;
@@ -222,7 +222,7 @@ function closeFormModal() {
 /**
  * Обработка отправки формы
  */
-function handleFormSubmit(e) {
+async function handleFormSubmit(e) {
     e.preventDefault();
     
     clearFormErrors();
@@ -249,10 +249,10 @@ function handleFormSubmit(e) {
         let result;
         
         if (mode === 'add') {
-            result =  API.addClient(formData);
+            result = await API.addClient(formData);
             clientObserver.notify('client_added', result.client);
         } else {
-            result = API.updateClient(clientId, formData);
+            result = await API.updateClient(clientId, formData);
             clientObserver.notify('client_updated', result.client);
         }
         
@@ -321,13 +321,13 @@ function clearFormErrors() {
 /**
  * Удаление клиента
  */
- function deleteClient(clientId) {
+async function deleteClient(clientId) {
     if (!confirm('Вы уверены, что хотите удалить этого клиента?')) {
         return;
     }
 
     try {
-         API.deleteClient(clientId);
+        await API.deleteClient(clientId);
         clientObserver.notify('client_deleted', clientId);
     } catch (error) {
         alert('Ошибка при удалении клиента');

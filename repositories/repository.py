@@ -102,12 +102,15 @@ class ClientDBAdapter(ClientRepository):
     def __init__(self, db_repository):
         super().__init__()
         self._db_repo = db_repository
+        self.read_all()
 
     def read_all(self):
-        cursor = self.db_repo._db.cursor()
+        conn = self._db_repo._db.get_connection()
+        cursor = conn.cursor()
         with cursor as cur:
-            cur.execute("SELECT * FROM clients ORDER BY clients_id")
+            cur.execute("SELECT * FROM clients ORDER BY client_id")
             rows = cur.fetchall()
+            print(rows)
             self._clients = [Client(*row) for row in rows]
 
     def write_all(self):

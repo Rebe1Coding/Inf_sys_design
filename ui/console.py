@@ -195,3 +195,8 @@ class ConsoleUI:
             if continue_choice == "q":
                 print("\n👋 До свидания!")
                 break
+
+
+if __name__ == "__main__":
+    ui = ConsoleUI()
+    ui.run()

@@ -6,7 +6,7 @@ const API = {
     /**
      * Получить список клиентов
      */
-     getClients(page = 1, pageSize = 10, ownershipFilter = '', sortField = '') {
+    async getClients(page = 1, pageSize = 10, ownershipFilter = '', sortField = '') {
         const params = new URLSearchParams({
             page: page,
             page_size: pageSize
@@ -20,33 +20,33 @@ const API = {
             params.append('sort_field', sortField);
         }
 
-        const response =  fetch(`${this.baseUrl}/clients?${params}`);
+        const response = await fetch(`${this.baseUrl}/clients?${params}`);
         
         if (!response.ok) {
             throw new Error('Ошибка при загрузке клиентов');
         }
 
-        return  response.json();
+        return await response.json();
     },
 
     /**
      * Получить детальную информацию о клиенте
      */
     async getClientDetail(clientId) {
-        const response =  fetch(`${this.baseUrl}/clients/${clientId}`);
+        const response = await fetch(`${this.baseUrl}/clients/${clientId}`);
         
         if (!response.ok) {
             throw new Error('Клиент не найден');
         }
 
-        return  response.json();
+        return await response.json();
     },
 
     /**
      * Добавить нового клиента
      */
-     addClient(clientData) {
-        const response =  fetch(`${this.baseUrl}/clients`, {
+    async addClient(clientData) {
+        const response = await fetch(`${this.baseUrl}/clients`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -54,7 +54,7 @@ const API = {
             body: JSON.stringify(clientData)
         });
 
-        const result =  response.json();
+        const result = await response.json();
         
         if (!response.ok) {
             throw result;
@@ -66,8 +66,8 @@ const API = {
     /**
      * Обновить данные клиента
      */
-     updateClient(clientId, clientData) {
-        const response =  fetch(`${this.baseUrl}/clients/${clientId}`, {
+    async updateClient(clientId, clientData) {
+        const response = await fetch(`${this.baseUrl}/clients/${clientId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -75,7 +75,7 @@ const API = {
             body: JSON.stringify(clientData)
         });
 
-        const result =  response.json();
+        const result = await response.json();
         
         if (!response.ok) {
             throw result;
@@ -87,8 +87,8 @@ const API = {
     /**
      * Удалить клиента
      */
-     deleteClient(clientId) {
-        const response =  fetch(`${this.baseUrl}/clients/${clientId}`, {
+    async deleteClient(clientId) {
+        const response = await fetch(`${this.baseUrl}/clients/${clientId}`, {
             method: 'DELETE'
         });
 
@@ -96,33 +96,33 @@ const API = {
             throw new Error('Ошибка при удалении клиента');
         }
 
-        return  response.json();
+        return await response.json();
     },
 
     /**
      * Получить данные для формы (универсальный endpoint)
      */
-     getFormData(mode, clientId = null) {
+    async getFormData(mode, clientId = null) {
         const params = clientId ? `?client_id=${clientId}` : '';
-        const response =  fetch(`${this.baseUrl}/form/${mode}${params}`);
+        const response = await fetch(`${this.baseUrl}/form/${mode}${params}`);
         
         if (!response.ok) {
             throw new Error('Ошибка при загрузке формы');
         }
 
-        return  response.json();
+        return await response.json();
     },
 
     /**
      * Отправить форму (универсальный endpoint)
      */
-     submitForm(mode, clientData, clientId = null) {
+    async submitForm(mode, clientData, clientId = null) {
         const params = new URLSearchParams({ mode });
         if (clientId) {
             params.append('client_id', clientId);
         }
 
-        const response =  fetch(`${this.baseUrl}/form/submit?${params}`, {
+        const response = await fetch(`${this.baseUrl}/form/submit?${params}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -130,7 +130,7 @@ const API = {
             body: JSON.stringify(clientData)
         });
 
-        const result = response.json();
+        const result = await response.json();
         
         if (!response.ok) {
             throw result;

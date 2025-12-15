@@ -22,8 +22,8 @@ class FilteredClientDBRepository:
         if self._filter:
             query += f" WHERE {self._filter}"
         query += f" ORDER BY {self._order_by} LIMIT {k} OFFSET {offset}"
-
-        with self._db_repo._db.cursor() as cur:
+        conn = self._db_repo._db.get_connection()
+        with conn.cursor() as cur:
             cur.execute(query)
             return [f"{name} ({contact})" for name, contact in cur.fetchall()]
 
@@ -32,8 +32,8 @@ class FilteredClientDBRepository:
         query = "SELECT COUNT(*) FROM clients"
         if self._filter:
             query += f" WHERE {self._filter}"
-
-        with self._db_repo._db.cursor() as cur:
+        conn = self._db_repo._db.get_connection()
+        with conn.cursor() as cur:
             cur.execute(query)
             return cur.fetchone()[0]
 

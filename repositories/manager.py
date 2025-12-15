@@ -146,7 +146,7 @@ def use_client_repo_db(db_params=db_conn) -> None:
         "name": "ООО Новое",
         "ownership_type": "ООО",
         "address": "г.Тест, ул. Новая, 1",
-        "phone": "+70000000001",
+        "phone": "+71000050601",
         "contact_person": "Новиков Н.Н.",
     }
     new_client = repo.add_client(new_data)
@@ -156,7 +156,7 @@ def use_client_repo_db(db_params=db_conn) -> None:
     # Обновим только что добавленного клиента
     if repo.update_client(
         new_client.client_id,
-        {"address": "г.Тест, ул. Новая, 2", "phone": "+70000000002"},
+        {"address": "г.Тест, ул. Новая, 2", "phone": "+73500100002"},
     ):
         print("\nПосле обновления:")
         print(repo.get_by_id(new_client.client_id).full_info())

@@ -8,11 +8,12 @@ class Client_rep_DB:
 
     def __init__(self, db_connection):
 
-        self._db = db_connection.get_connection()
+        self._db = db_connection
 
     def get_by_id(self, client_id: int) -> Optional[Client]:
         query = "SELECT * FROM clients WHERE client_id = %s;"
-        cursor = self._db.cursor()
+        conn = self._db.get_connection()
+        cursor = conn.cursor()
         cursor.execute(query, (client_id,))
         row = cursor.fetchone()
         cursor.close()
@@ -25,7 +26,8 @@ class Client_rep_DB:
         # Используем LIMIT и OFFSET для пагинации
         query = "SELECT client_id, name, contact_person FROM clients ORDER BY client_id LIMIT %s OFFSET %s;"
         offset = (n - 1) * k
-        cursor = self._db.cursor()
+        conn = self._db.get_connection()
+        cursor = conn.cursor()
         cursor.execute(query, (k, offset))
         rows = cursor.fetchall()
         cursor.close()
@@ -44,10 +46,11 @@ class Client_rep_DB:
             VALUES (%(name)s, %(ownership_type)s, %(address)s, %(phone)s, %(contact_person)s)
             RETURNING client_id;
         """
-        cursor = self._db.cursor()
+        conn = self._db.get_connection()
+        cursor = conn.cursor()
         cursor.execute(query, client_data)
         new_id = cursor.fetchone()[0]
-        self._db.commit()
+        conn.commit()
         cursor.close()
         # Создаём и возвращаем объект
         return Client(client_id=new_id, **client_data)
@@ -62,25 +65,28 @@ class Client_rep_DB:
         query = sql.SQL("UPDATE clients SET {} WHERE client_id = %s;").format(
             sql.SQL(set_clause)
         )
-        cursor = self._db.cursor()
+        conn = self._db.get_connection()
+        cursor = conn.cursor()
         cursor.execute(query, values)
         rows_affected = cursor.rowcount
-        self._db.commit()
+        conn.commit()
         cursor.close()
         return rows_affected > 0
 
     def delete_client(self, client_id: int) -> bool:
         query = "DELETE FROM clients WHERE client_id = %s;"
-        cursor = self._db.cursor()
+        conn = self._db.get_connection()
+        cursor = conn.cursor()
         cursor.execute(query, (client_id,))
         rows_affected = cursor.rowcount
-        self._db.commit()
+        conn.commit()
         cursor.close()
         return rows_affected > 0
 
     def get_count(self) -> int:
         query = "SELECT COUNT(*) FROM clients;"
-        cursor = self._db.cursor()
+        conn = self._db.get_connection()
+        cursor = conn.cursor()
         cursor.execute(query)
         count = cursor.fetchone()[0]
         cursor.close()
