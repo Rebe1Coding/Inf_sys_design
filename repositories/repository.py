@@ -104,8 +104,8 @@ class ClientDBAdapter(ClientRepository):
         self._db_repo = db_repository
 
     def read_all(self):
-        self._db_repo._db.get_conection()
-        cursor = self.db_repo._db.cursor()
+        conn = self._db_repo._db.get_conection()
+        cursor = conn.cursor()
         with cursor as cur:
             cur.execute("SELECT * FROM clients ORDER BY clients_id")
             rows = cur.fetchall()

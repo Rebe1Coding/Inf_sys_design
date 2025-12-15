@@ -1,5 +1,5 @@
 from typing import Optional
-
+from repositories.decarators.db_filter_decorator import FilteredClientDBRepository
 
 class MainController:
     """Контроллер главной страницы - отображение списка клиентов"""
@@ -24,7 +24,7 @@ class MainController:
         """
         # Применяем фильтр если нужно
         if ownership_filter:
-            from repositories.decarators.db_filter_decorator import FilteredClientDBRepository
+            
             filter_sql = f"ownership_type = '{ownership_filter}'"
             order_by = sort_field if sort_field else "client_id"
             filtered_repo = FilteredClientDBRepository(
