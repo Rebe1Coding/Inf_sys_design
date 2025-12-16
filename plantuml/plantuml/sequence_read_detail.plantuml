@@ -1,0 +1,83 @@
+@startuml sequence_read_detail
+!theme plain
+autonumber
+
+title Диаграмма последовательности: READ - Детальная информация о клиенте\n(Паттерн НАБЛЮДАТЕЛЬ)
+
+actor Пользователь as User
+participant "HTML/JS\n(View)" as View
+participant "FastAPI\n(App)" as FastAPI
+participant "MainController\n(Controller)" as Controller
+participant "RepositoryObserver\n(Subject)" as Observer
+participant "ClientDBAdapter\n(Repository)" as Adapter
+participant "Client_rep_DB\n(Model)" as DB
+database "PostgreSQL" as Database
+
+User -> View: Кликает на строку\nв таблице
+activate View
+
+View -> View: showClientDetail(client_id)
+
+View -> FastAPI: GET /api/clients/{client_id}
+activate FastAPI
+
+FastAPI -> Controller: get_client_detail(client_id)
+activate Controller
+
+note right of Controller
+  Контроллер получает данные
+  через паттерн НАБЛЮДАТЕЛЬ
+end note
+
+Controller -> Observer: get_by_id(client_id)
+activate Observer
+
+note right of Observer
+  RepositoryObserver
+  обертывает репозиторий
+  для уведомления наблюдателей
+end note
+
+Observer -> Adapter: get_by_id(client_id)
+activate Adapter
+
+Adapter -> DB: get_by_id(client_id)
+activate DB
+
+DB -> Database: SELECT * FROM clients\nWHERE client_id = ?
+activate Database
+Database --> DB: row
+deactivate Database
+
+DB -> DB: Client(*row)
+DB --> Adapter: Client object
+deactivate DB
+
+Adapter --> Observer: Client object
+deactivate Adapter
+
+Observer --> Controller: Client object
+deactivate Observer
+
+Controller -> Controller: Преобразует в dict:\n{\n  "client_id": ...,\n  "name": ...,\n  "ownership_type": ...,\n  "address": ...,\n  "phone": ...,\n  "contact_person": ...\n}
+
+Controller --> FastAPI: client_dict
+deactivate Controller
+
+FastAPI --> View: JSON Response
+deactivate FastAPI
+
+View -> View: Открывает модальное окно\n(detailModal)
+View -> View: Заполняет поля данными
+
+View --> User: Показывает полную\nинформацию о клиенте
+deactivate View
+
+note over Observer
+  Паттерн НАБЛЮДАТЕЛЬ:
+  Если данные изменятся,
+  Observer уведомит View
+  через notify()
+end note
+
+@enduml

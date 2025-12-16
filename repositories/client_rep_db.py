@@ -21,7 +21,7 @@ class Client_rep_DB:
             return Client(*row)
         return None
 
-    def get_k_n_short_list(self, k: int, n: int) -> List[str]:
+    def get_k_n_short_list(self, k: int, n: int) -> List[dict]:
         """Получить список k по счету n объектов класса short."""
         # Используем LIMIT и OFFSET для пагинации
         query = "SELECT client_id, name, contact_person FROM clients ORDER BY client_id LIMIT %s OFFSET %s;"
@@ -35,7 +35,11 @@ class Client_rep_DB:
         short_list = []
         for row in rows:
             # row: (id, name, contact_person)
-            short_list.append(f"{row[1]} ({row[2]})")
+            short_list.append({
+                "client_id": row[0],
+                "name": row[1],
+                "contact_person": row[2]
+            })
         return short_list
 
     def add_client(self, client_data: dict) -> Client:
@@ -69,8 +73,8 @@ class Client_rep_DB:
         cursor = conn.cursor()
         cursor.execute(query, values)
         rows_affected = cursor.rowcount
-        self._db.commit()
         conn.commit()
+        cursor.close()
         return rows_affected > 0
 
     def delete_client(self, client_id: int) -> bool:

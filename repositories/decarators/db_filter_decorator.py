@@ -14,26 +14,26 @@ class FilteredClientDBRepository:
         self._filter = filter_sql
         self._order_by = order_by if order_by else "client_id"
 
-    def get_k_n_short_list(self, k: int, n: int) -> list[str]:
+    def get_k_n_short_list(self, k: int, n: int) -> list[dict]:
         """Возвращает k элементов, начиная с n-й страницы, с учётом фильтра и сортировки."""
         offset = (n - 1) * k
 
-        query = "SELECT name, contact_person FROM clients"
+        query = "SELECT client_id, name, contact_person FROM clients"
         if self._filter:
             query += f" WHERE {self._filter}"
         query += f" ORDER BY {self._order_by} LIMIT {k} OFFSET {offset}"
-
-        with self._db_repo._db.cursor() as cur:
+        conn = self._db_repo._db.get_connection()
+        with conn.cursor() as cur:
             cur.execute(query)
-            return [f"{name} ({contact})" for name, contact in cur.fetchall()]
+            return [{"client_id": row[0], "name": row[1], "contact_person": row[2]} for row in cur.fetchall()]
 
     def get_count(self) -> int:
         """Возвращает общее количество записей с учётом фильтра."""
         query = "SELECT COUNT(*) FROM clients"
         if self._filter:
             query += f" WHERE {self._filter}"
-
-        with self._db_repo._db.cursor() as cur:
+        conn = self._db_repo._db.get_connection()
+        with conn.cursor() as cur:
             cur.execute(query)
             return cur.fetchone()[0]
 
