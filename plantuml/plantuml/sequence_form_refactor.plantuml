@@ -1,0 +1,187 @@
+@startuml sequence_form_refactor
+!theme plain
+autonumber
+
+title Диаграмма последовательности: Рефакторинг формы (п.4)\nОдин класс окна - разные контроллеры
+
+actor Пользователь as User
+participant "HTML/JS\n(View - ОДНА ФОРМА)" as View
+participant "FastAPI\n(App)" as FastAPI
+participant "FormController\n(УНИВЕРСАЛЬНЫЙ)" as FormController
+participant "RepositoryObserver\n(Subject)" as Observer
+participant "ClientDBAdapter\n(Repository)" as Adapter
+participant "Client_rep_DB\n(Model)" as DB
+database "PostgreSQL" as Database
+
+== Сценарий 1: Добавление (mode='add') ==
+
+User -> View: Нажимает "Добавить"
+activate View
+
+View -> View: openFormModal('add')
+
+View -> FastAPI: GET /api/form/add
+activate FastAPI
+
+FastAPI -> FormController: new FormController(\nrepository, mode='add')
+activate FormController
+
+FormController -> FormController: get_form_data()
+
+note right of FormController
+  РЕФАКТОРИНГ:
+  Логика отображения
+  (пустая форма)
+  в контроллере!
+end note
+
+FormController --> FastAPI: {\n  "mode": "add",\n  "title": "Добавление клиента",\n  "data": {\n    "name": "",\n    "ownership_type": "",\n    ...\n  }\n}
+deactivate FormController
+
+FastAPI --> View: JSON Response
+deactivate FastAPI
+
+View -> View: Отображает ПУСТУЮ форму
+
+View --> User: Показывает форму
+deactivate View
+
+User -> View: Заполняет и отправляет
+activate View
+
+View -> FastAPI: POST /api/form/submit\n?mode=add\n{...client_data...}
+activate FastAPI
+
+FastAPI -> FormController: new FormController(\nrepository, mode='add')
+activate FormController
+
+FormController -> FormController: submit_form(client_data)
+FormController -> FormController: _validate_client_data(data)
+
+FormController -> Observer: add_client(client_data)
+activate Observer
+Observer -> Adapter: add_client(client_data)
+activate Adapter
+Adapter -> DB: add_client(client_data)
+activate DB
+DB -> Database: INSERT INTO clients
+activate Database
+Database --> DB: new_id
+deactivate Database
+DB --> Adapter: new Client
+deactivate DB
+Adapter --> Observer: new Client
+deactivate Adapter
+Observer -> Observer: notify('client_added', client)
+Observer --> FormController: new Client
+deactivate Observer
+
+FormController --> FastAPI: {\n  "success": True,\n  "client": {...}\n}
+deactivate FormController
+
+FastAPI --> View: JSON Response
+deactivate FastAPI
+
+View -> View: Обновляет таблицу
+View --> User: Показывает результат
+deactivate View
+
+== Сценарий 2: Редактирование (mode='edit') ==
+
+User -> View: Нажимает "Изменить"
+activate View
+
+View -> View: openFormModal('edit', client_id)
+
+View -> FastAPI: GET /api/form/edit\n?client_id=5
+activate FastAPI
+
+FastAPI -> FormController: new FormController(\nrepository,\nmode='edit',\nclient_id=5)
+activate FormController
+
+FormController -> FormController: get_form_data()
+
+FormController -> Observer: get_by_id(5)
+activate Observer
+Observer -> Adapter: get_by_id(5)
+activate Adapter
+Adapter -> DB: get_by_id(5)
+activate DB
+DB -> Database: SELECT * WHERE id=5
+activate Database
+Database --> DB: row
+deactivate Database
+DB --> Adapter: Client object
+deactivate DB
+Adapter --> Observer: Client object
+deactivate Adapter
+Observer --> FormController: Client object
+deactivate Observer
+
+note right of FormController
+  РЕФАКТОРИНГ:
+  Логика отображения
+  (заполненная форма)
+  в контроллере!
+end note
+
+FormController --> FastAPI: {\n  "mode": "edit",\n  "title": "Редактирование",\n  "data": {\n    "client_id": 5,\n    "name": "ООО Ромашка",\n    ...\n  }\n}
+deactivate FormController
+
+FastAPI --> View: JSON Response
+deactivate FastAPI
+
+View -> View: Отображает ЗАПОЛНЕННУЮ форму
+
+View --> User: Показывает форму\nс данными
+deactivate View
+
+User -> View: Редактирует и отправляет
+activate View
+
+View -> FastAPI: POST /api/form/submit\n?mode=edit&client_id=5\n{...client_data...}
+activate FastAPI
+
+FastAPI -> FormController: new FormController(\nrepository,\nmode='edit',\nclient_id=5)
+activate FormController
+
+FormController -> FormController: submit_form(client_data)
+FormController -> FormController: _validate_client_data(data)
+
+FormController -> Observer: update_client(5, client_data)
+activate Observer
+Observer -> Adapter: update_client(5, client_data)
+activate Adapter
+Adapter -> DB: update_client(5, client_data)
+activate DB
+DB -> Database: UPDATE clients\nWHERE id=5
+activate Database
+Database --> DB: success
+deactivate Database
+DB --> Adapter: success
+deactivate DB
+Adapter --> Observer: success
+deactivate Adapter
+Observer -> Observer: notify('client_updated', client)
+Observer --> FormController: updated Client
+deactivate Observer
+
+FormController --> FastAPI: {\n  "success": True,\n  "client": {...}\n}
+deactivate FormController
+
+FastAPI --> View: JSON Response
+deactivate FastAPI
+
+View -> View: Обновляет таблицу
+View --> User: Показывает результат
+deactivate View
+
+note over View, Database
+  ИТОГ РЕФАКТОРИНГА (п.4):
+  - ОДИН класс окна (formModal)
+  - Логика разного отображения в FormController
+  - mode='add' → пустая форма
+  - mode='edit' → заполненная форма
+end note
+
+@enduml

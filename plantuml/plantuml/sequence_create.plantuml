@@ -1,0 +1,106 @@
+@startuml sequence_create
+!theme plain
+autonumber
+
+title Диаграмма последовательности: CREATE - Добавление клиента (п.2)
+
+actor Пользователь as User
+participant "HTML/JS\n(View)" as View
+participant "FastAPI\n(App)" as FastAPI
+participant "AddController\n(Controller)" as Controller
+participant "RepositoryObserver\n(Subject)" as Observer
+participant "ClientDBAdapter\n(Repository)" as Adapter
+participant "Client_rep_DB\n(Model)" as DB
+database "PostgreSQL" as Database
+
+User -> View: Нажимает кнопку\n"Добавить клиента"
+activate View
+
+View -> View: openFormModal('add')
+View -> View: Открывает модальное окно\nс пустой формой
+
+View --> User: Показывает форму
+User -> View: Заполняет форму\nи нажимает "Сохранить"
+
+View -> View: handleFormSubmit(event)
+
+View -> View: Валидация на уровне UI:\n- проверка заполненности\n- минимальная длина\n- формат телефона
+
+alt Валидация не пройдена
+    View --> User: Показывает ошибки валидации
+else Валидация пройдена
+    View -> FastAPI: POST /api/clients\n{\n  "name": "...",\n  "ownership_type": "...",\n  "address": "...",\n  "phone": "...",\n  "contact_person": "..."\n}
+    activate FastAPI
+    
+    FastAPI -> Controller: validate_and_add(client_data)
+    activate Controller
+    
+    note right of Controller
+      Новый контроллер
+      для операции добавления
+      (MVC паттерн)
+    end note
+    
+    Controller -> Controller: _validate_client_data(data)
+    
+    alt Валидация контроллера не пройдена
+        Controller --> FastAPI: {\n  "success": False,\n  "errors": [...]\n}
+        FastAPI --> View: HTTP 400\nJSON с ошибками
+        View --> User: Показывает ошибки
+    else Валидация пройдена
+        Controller -> Observer: add_client(client_data)
+        activate Observer
+        
+        Observer -> Adapter: add_client(client_data)
+        activate Adapter
+        
+        Adapter -> DB: add_client(client_data)
+        activate DB
+        
+        DB -> Database: INSERT INTO clients\n(...) VALUES (...)\nRETURNING client_id
+        activate Database
+        Database --> DB: new_id
+        deactivate Database
+        
+        DB -> DB: Client(client_id=new_id,\n**client_data)
+        DB --> Adapter: Client object
+        deactivate DB
+        
+        Adapter --> Observer: Client object
+        deactivate Adapter
+        
+        note right of Observer
+          ПАТТЕРН НАБЛЮДАТЕЛЬ:
+          Уведомляем наблюдателей
+          о добавлении клиента
+        end note
+        
+        Observer -> Observer: notify('client_added', client)
+        
+        Observer --> Controller: Client object
+        deactivate Observer
+        
+        Controller --> FastAPI: {\n  "success": True,\n  "message": "...",\n  "client": {...}\n}
+        deactivate Controller
+        
+        FastAPI --> View: HTTP 201\nJSON с данными
+        deactivate FastAPI
+        
+        View -> View: clientObserver.notify(\n'client_added', client)
+        
+        View -> View: Закрывает модальное окно\ncloseFormModal()
+        
+        note right of View
+          Автоматическое обновление
+          через паттерн Наблюдатель
+        end note
+        
+        View -> View: loadClients()\n(обновление таблицы)
+        
+        View --> User: Показывает обновленную\nтаблицу с новым клиентом
+    end
+end
+
+deactivate View
+
+@enduml

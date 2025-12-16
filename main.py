@@ -129,7 +129,6 @@ def submit_form(
     client_id: Optional[int] = None,
     client_data: ClientCreate = None
 ):
-    """Отправить форму (универсальный endpoint для add и edit)"""
     controller = FormController(repository, mode, client_id)
     result = controller.submit_form(client_data.dict())
     

@@ -1,0 +1,103 @@
+@startuml sequence_delete
+!theme plain
+autonumber
+
+title Диаграмма последовательности: DELETE - Удаление клиента (п.5)
+
+actor Пользователь as User
+participant "HTML/JS\n(View)" as View
+participant "FastAPI\n(App)" as FastAPI
+participant "RepositoryObserver\n(Subject)" as Observer
+participant "ClientDBAdapter\n(Repository)" as Adapter
+participant "Client_rep_DB\n(Model)" as DB
+database "PostgreSQL" as Database
+
+User -> View: Нажимает кнопку\n"Удалить" на клиенте
+activate View
+
+View -> View: deleteClient(client_id)
+
+View -> View: Показывает диалог\nподтверждения:\n"Вы уверены?"
+
+alt Пользователь отменил
+    View --> User: Отмена операции
+else Пользователь подтвердил
+    View -> FastAPI: DELETE /api/clients/{client_id}
+    activate FastAPI
+    
+    note right of FastAPI
+      Для DELETE используем
+      напрямую RepositoryObserver
+      (контроллер не нужен)
+    end note
+    
+    FastAPI -> Observer: delete_client(client_id)
+    activate Observer
+    
+    Observer -> Adapter: delete_client(client_id)
+    activate Adapter
+    
+    Adapter -> DB: delete_client(client_id)
+    activate DB
+    
+    DB -> Database: DELETE FROM clients\nWHERE client_id = ?
+    activate Database
+    Database --> DB: rows_affected
+    deactivate Database
+    
+    alt Клиент не найден (rows_affected = 0)
+        DB --> Adapter: success = False
+        deactivate DB
+        Adapter --> Observer: success = False
+        deactivate Adapter
+        Observer --> FastAPI: success = False
+        deactivate Observer
+        
+        FastAPI --> View: HTTP 404\n{"detail": "Клиент не найден"}
+        deactivate FastAPI
+        
+        View --> User: Показывает ошибку
+        
+    else Клиент успешно удален
+        DB --> Adapter: success = True
+        deactivate DB
+        
+        Adapter --> Observer: success = True
+        deactivate Adapter
+        
+        note right of Observer
+          ПАТТЕРН НАБЛЮДАТЕЛЬ:
+          Уведомляем об удалении
+        end note
+        
+        Observer -> Observer: notify('client_deleted',\nclient_id)
+        
+        Observer --> FastAPI: success = True
+        deactivate Observer
+        
+        FastAPI --> View: HTTP 200\n{\n  "success": True,\n  "message": "Клиент успешно удален"\n}
+        deactivate FastAPI
+        
+        View -> View: clientObserver.notify(\n'client_deleted', client_id)
+        
+        note right of View
+          Автоматическое обновление
+          через паттерн Наблюдатель
+        end note
+        
+        View -> View: loadClients()\n(обновление таблицы)
+        
+        View --> User: Показывает обновленную\nтаблицу без удаленного\nклиента
+    end
+end
+
+deactivate View
+
+note over User, Database
+  ПАТТЕРН НАБЛЮДАТЕЛЬ:
+  - При удалении срабатывает notify()
+  - UI автоматически обновляется
+  - Нет необходимости вручную обновлять страницу
+end note
+
+@enduml

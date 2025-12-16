@@ -1,0 +1,164 @@
+@startuml sequence_sort
+!theme plain
+autonumber
+
+title Диаграмма последовательности: Сортировка клиентов (п.7)
+
+actor Пользователь as User
+participant "HTML/JS\n(View)" as View
+participant "FastAPI\n(App)" as FastAPI
+participant "MainController\n(Controller)" as Controller
+participant "FilteredClientDB\nRepository\n(ДЕКОРАТОР)" as Decorator
+participant "Client_rep_DB\n(Model)" as DB
+database "PostgreSQL" as Database
+
+User -> View: Выбирает сортировку\n"По названию"
+activate View
+
+View -> View: Обработчик change\nна select#sortField
+
+View -> View: currentSort = "name"\ncurrentPage = 1
+
+View -> View: loadClients()
+
+View -> FastAPI: GET /api/clients\n?page=1&page_size=10\n&ownership_filter=\n&sort_field=name
+activate FastAPI
+
+FastAPI -> Controller: get_clients_page(\npage=1,\npage_size=10,\nownership_filter="",\nsort_field="name")
+activate Controller
+
+note right of Controller
+  Контроллер применяет
+  ПАТТЕРН ДЕКОРАТОР
+  для сортировки
+end note
+
+Controller -> Decorator: new FilteredClientDBRepository(\ndb_repo,\nfilter_sql="",\norder_by="name ASC")
+activate Decorator
+
+note right of Decorator
+  ПАТТЕРН ДЕКОРАТОР:
+  Добавляет ORDER BY
+  в SQL запросы
+end note
+
+Controller -> Decorator: get_k_n_short_list(10, 1)
+
+Decorator -> DB: execute SQL с сортировкой
+activate DB
+
+DB -> Database: SELECT name, contact_person\nFROM clients\nORDER BY name ASC\nLIMIT 10 OFFSET 0
+activate Database
+
+note right of Database
+  Сортировка по названию
+  с учетом нормализации
+  (без префиксов ООО, АО и т.д.)
+end note
+
+Database --> DB: sorted_rows[]
+deactivate Database
+
+DB --> Decorator: sorted_list[]
+deactivate DB
+
+Decorator --> Controller: sorted_list[]
+deactivate Decorator
+
+Controller -> Decorator: get_count()
+activate Decorator
+Decorator -> DB: get_count()
+activate DB
+DB -> Database: SELECT COUNT(*)\nFROM clients
+activate Database
+Database --> DB: total_count
+deactivate Database
+DB --> Decorator: total_count
+deactivate DB
+Decorator --> Controller: total_count
+deactivate Decorator
+
+Controller --> FastAPI: {\n  "clients": [\n    "Алекс (Иванов)",\n    "Бета (Петров)",\n    "Вега (Сидоров)",\n    ...\n  ],\n  "current_page": 1,\n  "total_pages": 3,\n  "total_count": 25\n}
+deactivate Controller
+
+FastAPI --> View: JSON Response
+deactivate FastAPI
+
+View -> View: renderClientsTable(\nsorted_clients)
+
+View --> User: Показывает клиентов\nотсортированных по названию
+deactivate View
+
+== Комбинация: Фильтрация + Сортировка ==
+
+User -> View: Выбирает фильтр "ООО"\nИ сортировку "По названию"
+activate View
+
+View -> View: currentFilter = "ООО"\ncurrentSort = "name"\ncurrentPage = 1
+
+View -> View: loadClients()
+
+View -> FastAPI: GET /api/clients\n?page=1&page_size=10\n&ownership_filter=ООО\n&sort_field=name
+activate FastAPI
+
+FastAPI -> Controller: get_clients_page(\npage=1,\npage_size=10,\nownership_filter="ООО",\nsort_field="name")
+activate Controller
+
+note right of Controller
+  ПАТТЕРН ДЕКОРАТОР:
+  Комбинирует фильтрацию
+  и сортировку
+end note
+
+Controller -> Decorator: new FilteredClientDBRepository(\ndb_repo,\nfilter_sql="ownership_type = 'ООО'",\norder_by="name ASC")
+activate Decorator
+
+Controller -> Decorator: get_k_n_short_list(10, 1)
+
+Decorator -> DB: execute SQL с фильтром\nи сортировкой
+activate DB
+
+DB -> Database: SELECT name, contact_person\nFROM clients\nWHERE ownership_type = 'ООО'\nORDER BY name ASC\nLIMIT 10 OFFSET 0
+activate Database
+Database --> DB: filtered_and_sorted[]
+deactivate Database
+
+DB --> Decorator: result_list[]
+deactivate DB
+
+Decorator --> Controller: result_list[]
+deactivate Decorator
+
+Controller -> Decorator: get_count()
+activate Decorator
+Decorator -> DB: execute COUNT с фильтром
+activate DB
+DB -> Database: SELECT COUNT(*)\nFROM clients\nWHERE ownership_type = 'ООО'
+activate Database
+Database --> DB: filtered_count
+deactivate Database
+DB --> Decorator: filtered_count
+deactivate DB
+Decorator --> Controller: filtered_count
+deactivate Decorator
+
+Controller --> FastAPI: {\n  "clients": [\n    "ООО Алекс (Иванов)",\n    "ООО Бета (Петров)",\n    ...\n  ],\n  "current_page": 1,\n  "total_pages": 2,\n  "total_count": 15\n}
+deactivate Controller
+
+FastAPI --> View: JSON Response
+deactivate FastAPI
+
+View -> View: renderClientsTable(\nfiltered_and_sorted)
+
+View --> User: Показывает только ООО,\nотсортированных по названию
+deactivate View
+
+note over User, Database
+  ПАТТЕРН ДЕКОРАТОР:
+  - Гибкая комбинация фильтрации и сортировки
+  - Один декоратор для обеих операций
+  - SQL оптимизирован (WHERE + ORDER BY в одном запросе)
+  - Не изменяет базовый репозиторий
+end note
+
+@enduml
