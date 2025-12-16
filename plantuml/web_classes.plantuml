@@ -1,0 +1,181 @@
+@startuml web_classes
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+' ========== ПАТТЕРН НАБЛЮДАТЕЛЬ ==========
+abstract class Observer {
+    + update(event_type: str, data: Any)
+}
+
+class Subject {
+    - _observers: List[Observer]
+    --
+    + attach(observer: Observer)
+    + detach(observer: Observer)
+    + notify(event_type: str, data: Any)
+}
+
+class RepositoryObserver {
+    - _repository: ClientDBAdapter
+    --
+    + get_by_id(client_id: int)
+    + get_k_n_short_list(k: int, n: int)
+    + add_client(client_data: dict)
+    + update_client(client_id: int, new_data: dict)
+    + delete_client(client_id: int)
+    + get_count()
+}
+
+' ========== МОДЕЛЬ (MODEL) ==========
+class Client {
+    - __client_id: int
+    - __name: str
+    - __ownership_type: str
+    - __address: str
+    - __phone: str
+    - __contact_person: str
+    --
+    + validate_id(client_id: int): int
+    + validate_name(name: str): str
+    + validate_address(address: str): str
+    + validate_phone(phone: str): str
+    + full_info(): str
+}
+
+abstract class ClientRepository {
+    # _clients: List
+    # _next_id: int
+    --
+    + get_by_id(client_id: int)
+    + get_k_n_short_list(k: int, n: int)
+    + add_client(client_data: dict)
+    + update_client(client_id: int, new_data: dict)
+    + delete_client(client_id: int)
+    + get_count()
+}
+
+class Client_rep_DB {
+    - _db: connection
+    --
+    + get_by_id(client_id: int)
+    + get_k_n_short_list(k: int, n: int)
+    + add_client(client_data: dict)
+    + update_client(client_id: int, new_data: dict)
+    + delete_client(client_id: int)
+    + get_count()
+}
+
+class ClientDBAdapter {
+    - _db_repo: Client_rep_DB
+    --
+    + read_all()
+    + write_all()
+    + get_by_id(client_id: int)
+    + get_k_n_short_list(k: int, n: int)
+    + add_client(client_data: dict)
+    + update_client(client_id: int, new_data: dict)
+    + delete_client(client_id: int)
+    + get_count()
+}
+
+class FilteredClientDBRepository {
+    - _db_repo: Client_rep_DB
+    - _filter: str
+    - _order_by: str
+    --
+    + get_k_n_short_list(k: int, n: int)
+    + get_count()
+    + get_by_id(client_id: int)
+    + add_client(client_data: dict)
+    + update_client(client_id: int, new_data: dict)
+    + delete_client(client_id: int)
+}
+
+' ========== КОНТРОЛЛЕРЫ (CONTROLLER) ==========
+class MainController {
+    - _repository: RepositoryObserver
+    --
+    + get_clients_page(page: int, page_size: int, ownership_filter: str, sort_field: str)
+    + get_client_detail(client_id: int)
+}
+
+class AddController {
+    - _repository: RepositoryObserver
+    --
+    + validate_and_add(client_data: dict)
+    - _validate_client_data(data: dict)
+}
+
+class EditController {
+    - _repository: RepositoryObserver
+    --
+    + get_client_for_edit(client_id: int)
+    + validate_and_update(client_id: int, client_data: dict)
+    - _validate_client_data(data: dict)
+}
+
+class FormController {
+    - _repository: RepositoryObserver
+    - _mode: str
+    - _client_id: int
+    --
+    + get_form_data()
+    + submit_form(client_data: dict)
+    - _validate_client_data(data: dict)
+    - _client_to_dict(client: Client)
+}
+
+' ========== VIEW (FASTAPI) ==========
+class FastAPIApp {
+    - repository: RepositoryObserver
+    --
+    + index()
+    + get_clients(page, page_size, ownership_filter, sort_field)
+    + get_client_detail(client_id)
+    + add_client(client_data)
+    + update_client(client_id, client_data)
+    + delete_client(client_id)
+    + get_form_data(mode, client_id)
+    + submit_form(mode, client_id, client_data)
+}
+
+' ========== СВЯЗИ ==========
+Subject <|-- RepositoryObserver
+RepositoryObserver o-- ClientDBAdapter
+ClientRepository <|-- ClientDBAdapter
+ClientDBAdapter o-- Client_rep_DB
+Client_rep_DB ..> Client : creates
+
+FilteredClientDBRepository o-- Client_rep_DB : decorates
+
+MainController o-- RepositoryObserver
+AddController o-- RepositoryObserver
+EditController o-- RepositoryObserver
+FormController o-- RepositoryObserver
+
+FastAPIApp o-- RepositoryObserver
+FastAPIApp ..> MainController : uses
+FastAPIApp ..> AddController : uses
+FastAPIApp ..> EditController : uses
+FastAPIApp ..> FormController : uses
+
+note right of RepositoryObserver
+  Паттерн НАБЛЮДАТЕЛЬ
+  При изменении данных
+  уведомляет UI
+end note
+
+note right of FormController
+  РЕФАКТОРИНГ (п.4)
+  Один контроллер для
+  add и edit режимов
+end note
+
+note right of FilteredClientDBRepository
+  ДЕКОРАТОР
+  Фильтрация и сортировка
+  (п.6, п.7)
+end note
+
+@enduml

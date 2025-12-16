@@ -28,7 +28,6 @@ class AddController:
                     "client": None
                 }
 
-            # Валидация на уровне модели произойдет в репозитории
             new_client = self._repository.add_client(client_data)
             
             return {
@@ -57,10 +56,8 @@ class AddController:
             }
 
     def _validate_client_data(self, data: dict):
-        """Валидация данных на уровне UI"""
         errors = []
 
-        # Проверка обязательных полей
         required_fields = ["name", "ownership_type", "address", "phone", "contact_person"]
         for field in required_fields:
             if not data.get(field) or not data[field].strip():

@@ -7,7 +7,7 @@ from typing import Optional
 import sys
 import os
 
-# Добавляем корневую директорию в путь для импорта
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from repositories.client_rep_db import Client_rep_DB
@@ -19,19 +19,19 @@ from web.controllers.add_controller import AddController
 from web.controllers.edit_controller import EditController
 from web.controllers.form_controller import FormController
 
-# Инициализация FastAPI
+
 app = FastAPI(title="Client Management System")
 
-# Подключаем статические файлы и шаблоны
+
 app.mount("/static", StaticFiles(directory="web/static"), name="static")
 templates = Jinja2Templates(directory="web/templates")
 
-# Инициализация репозитория с паттерном Наблюдатель
+
 db_repo = Client_rep_DB(db_conn)
 adapter = ClientDBAdapter(db_repo)
 repository = RepositoryObserver(adapter)
 
-# Pydantic модели для валидации запросов
+
 class ClientCreate(BaseModel):
     name: str
     ownership_type: str
@@ -47,14 +47,12 @@ class ClientUpdate(BaseModel):
     contact_person: Optional[str] = None
 
 
-# ============= ГЛАВНАЯ СТРАНИЦА (VIEW) =============
+
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
-    """Главная страница приложения"""
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-# ============= API ENDPOINTS (CONTROLLER) =============
 
 @app.get("/api/clients")
 def get_clients(
@@ -71,7 +69,6 @@ def get_clients(
 
 @app.get("/api/clients/{client_id}")
 def get_client_detail(client_id: int):
-    """Получить полную информацию о клиенте"""
     controller = MainController(repository)
     client = controller.get_client_detail(client_id)
     
@@ -83,7 +80,6 @@ def get_client_detail(client_id: int):
 
 @app.post("/api/clients")
 def add_client(client_data: ClientCreate):
-    """Добавить нового клиента"""
     controller = AddController(repository)
     result = controller.validate_and_add(client_data.dict())
     
@@ -95,9 +91,7 @@ def add_client(client_data: ClientCreate):
 
 @app.put("/api/clients/{client_id}")
 def update_client(client_id: int, client_data: ClientUpdate):
-    """Обновить данные клиента"""
     controller = EditController(repository)
-    # Фильтруем только непустые поля
     update_data = {k: v for k, v in client_data.dict().items() if v is not None}
     result = controller.validate_and_update(client_id, update_data)
     
@@ -121,11 +115,9 @@ def delete_client(client_id: int):
         raise HTTPException(status_code=404, detail="Клиент не найден")
 
 
-# ============= API ДЛЯ ФОРМЫ (рефакторинг п.4) =============
-
 @app.get("/api/form/{mode}")
 def get_form_data(mode: str, client_id: Optional[int] = None):
-    """Получить данные для формы (add или edit)"""
+
     controller = FormController(repository, mode, client_id)
     form_data = controller.get_form_data()
     return JSONResponse(content=form_data)

@@ -1,19 +1,10 @@
 class EditController:
-    """Контроллер для редактирования существующего клиента"""
-
+    
     def __init__(self, repository):
         self._repository = repository
 
     def get_client_for_edit(self, client_id: int):
-        """
-        Получить данные клиента для редактирования
-        
-        Args:
-            client_id: ID клиента
-        
-        Returns:
-            dict с данными клиента или None
-        """
+
         client = self._repository.get_by_id(client_id)
         if client:
             return {
@@ -27,16 +18,7 @@ class EditController:
         return None
 
     def validate_and_update(self, client_id: int, client_data: dict):
-        """
-        Валидировать данные и обновить клиента
-        
-        Args:
-            client_id: ID клиента
-            client_data: словарь с новыми данными
-        
-        Returns:
-            dict: {"success": bool, "message": str, "client": dict/None}
-        """
+       
         try:
             # Проверяем существование клиента
             existing_client = self._repository.get_by_id(client_id)
@@ -47,7 +29,6 @@ class EditController:
                     "client": None
                 }
 
-            # Валидация на уровне контроллера
             errors = self._validate_client_data(client_data)
             if errors:
                 return {
@@ -57,7 +38,6 @@ class EditController:
                     "client": None
                 }
 
-            # Обновление клиента
             success = self._repository.update_client(client_id, client_data)
             
             if success:

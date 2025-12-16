@@ -1,0 +1,87 @@
+@startuml sequence_read
+!theme plain
+autonumber
+
+title Диаграмма последовательности: READ - Получение списка клиентов (п.1)
+
+actor Пользователь as User
+participant "HTML/JS\n(View)" as View
+participant "FastAPI\n(App)" as FastAPI
+participant "MainController\n(Controller)" as Controller
+participant "RepositoryObserver\n(Subject)" as Observer
+participant "ClientDBAdapter\n(Repository)" as Adapter
+participant "Client_rep_DB\n(Model)" as DB
+database "PostgreSQL" as Database
+
+User -> View: Открывает страницу\n/загружает данные
+activate View
+
+View -> FastAPI: GET /api/clients\n?page=1&page_size=10
+activate FastAPI
+
+FastAPI -> Controller: get_clients_page(page=1,\npage_size=10,\nownership_filter=None,\nsort_field=None)
+activate Controller
+
+note right of Controller
+  Вся логика в контроллере!
+  Никакой логики в View
+end note
+
+Controller -> Observer: get_k_n_short_list(10, 1)
+activate Observer
+
+Observer -> Adapter: get_k_n_short_list(10, 1)
+activate Adapter
+
+Adapter -> DB: get_k_n_short_list(10, 1)
+activate DB
+
+DB -> Database: SELECT * FROM clients\nLIMIT 10 OFFSET 0
+activate Database
+Database --> DB: rows[]
+deactivate Database
+
+DB --> Adapter: short_list[]
+deactivate DB
+
+Adapter --> Observer: short_list[]
+deactivate Adapter
+
+Observer --> Controller: short_list[]
+deactivate Observer
+
+Controller -> Observer: get_count()
+activate Observer
+Observer -> Adapter: get_count()
+activate Adapter
+Adapter -> DB: get_count()
+activate DB
+DB -> Database: SELECT COUNT(*)\nFROM clients
+activate Database
+Database --> DB: total_count
+deactivate Database
+DB --> Adapter: total_count
+deactivate DB
+Adapter --> Observer: total_count
+deactivate Adapter
+Observer --> Controller: total_count
+deactivate Observer
+
+Controller --> FastAPI: {\n  "clients": [...],\n  "current_page": 1,\n  "total_pages": 3,\n  "total_count": 25\n}
+deactivate Controller
+
+FastAPI --> View: JSON Response
+deactivate FastAPI
+
+View -> View: renderClientsTable(clients)
+View -> View: renderPagination(current_page, total_pages)
+
+View --> User: Отображает таблицу\nс клиентами
+deactivate View
+
+note over User, Database
+  ПАТТЕРН НАБЛЮДАТЕЛЬ: RepositoryObserver готов\n
+  уведомить View при изменениях
+end note
+
+@enduml

@@ -3,9 +3,6 @@
 const API = {
     baseUrl: '/api',
 
-    /**
-     * Получить список клиентов
-     */
     async getClients(page = 1, pageSize = 10, ownershipFilter = '', sortField = '') {
         const params = new URLSearchParams({
             page: page,
@@ -29,9 +26,6 @@ const API = {
         return await response.json();
     },
 
-    /**
-     * Получить детальную информацию о клиенте
-     */
     async getClientDetail(clientId) {
         const response = await fetch(`${this.baseUrl}/clients/${clientId}`);
         
@@ -42,9 +36,6 @@ const API = {
         return await response.json();
     },
 
-    /**
-     * Добавить нового клиента
-     */
     async addClient(clientData) {
         const response = await fetch(`${this.baseUrl}/clients`, {
             method: 'POST',
@@ -63,9 +54,6 @@ const API = {
         return result;
     },
 
-    /**
-     * Обновить данные клиента
-     */
     async updateClient(clientId, clientData) {
         const response = await fetch(`${this.baseUrl}/clients/${clientId}`, {
             method: 'PUT',
@@ -84,9 +72,6 @@ const API = {
         return result;
     },
 
-    /**
-     * Удалить клиента
-     */
     async deleteClient(clientId) {
         const response = await fetch(`${this.baseUrl}/clients/${clientId}`, {
             method: 'DELETE'
@@ -99,9 +84,7 @@ const API = {
         return await response.json();
     },
 
-    /**
-     * Получить данные для формы (универсальный endpoint)
-     */
+
     async getFormData(mode, clientId = null) {
         const params = clientId ? `?client_id=${clientId}` : '';
         const response = await fetch(`${this.baseUrl}/form/${mode}${params}`);
@@ -113,9 +96,6 @@ const API = {
         return await response.json();
     },
 
-    /**
-     * Отправить форму (универсальный endpoint)
-     */
     async submitForm(mode, clientData, clientId = null) {
         const params = new URLSearchParams({ mode });
         if (clientId) {

@@ -6,10 +6,6 @@ class ClientObserver {
     constructor() {
         this.observers = [];
     }
-
-    /**
-     * Подписать наблюдателя
-     */
     subscribe(observer) {
         if (typeof observer !== 'function') {
             throw new Error('Observer должен быть функцией');
@@ -17,16 +13,12 @@ class ClientObserver {
         this.observers.push(observer);
     }
 
-    /**
-     * Отписать наблюдателя
-     */
+
     unsubscribe(observer) {
         this.observers = this.observers.filter(obs => obs !== observer);
     }
 
-    /**
-     * Уведомить всех наблюдателей
-     */
+
     notify(eventType, data) {
         this.observers.forEach(observer => {
             observer(eventType, data);
@@ -34,16 +26,11 @@ class ClientObserver {
     }
 }
 
-// Глобальный экземпляр наблюдателя
+
 const clientObserver = new ClientObserver();
 
-/**
- * Обработчики событий для разных типов операций
- */
 const ClientEventHandlers = {
-    /**
-     * Обработка добавления клиента
-     */
+
     onClientAdded: (data) => {
         console.log('Клиент добавлен:', data);
         // Автоматически обновляем таблицу
@@ -52,9 +39,6 @@ const ClientEventHandlers = {
         }
     },
 
-    /**
-     * Обработка обновления клиента
-     */
     onClientUpdated: (data) => {
         console.log('Клиент обновлен:', data);
         // Автоматически обновляем таблицу
@@ -63,9 +47,6 @@ const ClientEventHandlers = {
         }
     },
 
-    /**
-     * Обработка удаления клиента
-     */
     onClientDeleted: (data) => {
         console.log('Клиент удален:', data);
         // Автоматически обновляем таблицу

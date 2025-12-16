@@ -2,31 +2,14 @@ from typing import Optional
 
 
 class FormController:
-    """
-    Общий контроллер для формы клиента (рефакторинг п.4)
-    Логика разного отображения (пустые/заполненные поля) вынесена в контроллер
-    """
 
     def __init__(self, repository, mode: str = "add", client_id: Optional[int] = None):
-        """
-        Args:
-            repository: репозиторий клиентов
-            mode: режим работы "add" или "edit"
-            client_id: ID клиента для режима "edit"
-        """
         self._repository = repository
         self._mode = mode
         self._client_id = client_id
 
     def get_form_data(self):
-        """
-        Получить данные для формы в зависимости от режима
-        
-        Returns:
-            dict с данными формы
-        """
         if self._mode == "edit" and self._client_id:
-            # Для редактирования - загружаем существующие данные
             client = self._repository.get_by_id(self._client_id)
             if client:
                 return {
@@ -48,7 +31,6 @@ class FormController:
                     "message": "Клиент не найден"
                 }
         else:
-            # Для добавления - пустая форма
             return {
                 "mode": "add",
                 "title": "Добавление клиента",
@@ -63,16 +45,7 @@ class FormController:
             }
 
     def submit_form(self, client_data: dict):
-        """
-        Обработать отправку формы
-        
-        Args:
-            client_data: данные из формы
-        
-        Returns:
-            dict с результатом операции
-        """
-        # Валидация
+
         errors = self._validate_client_data(client_data)
         if errors:
             return {
@@ -83,7 +56,6 @@ class FormController:
 
         try:
             if self._mode == "edit" and self._client_id:
-                # Обновление существующего клиента
                 success = self._repository.update_client(self._client_id, client_data)
                 if success:
                     updated_client = self._repository.get_by_id(self._client_id)
@@ -98,7 +70,7 @@ class FormController:
                         "message": "Не удалось обновить клиента"
                     }
             else:
-                # Добавление нового клиента
+                
                 new_client = self._repository.add_client(client_data)
                 return {
                     "success": True,
@@ -118,7 +90,7 @@ class FormController:
             }
 
     def _validate_client_data(self, data: dict):
-        """Валидация данных"""
+
         errors = []
 
         required_fields = {
@@ -150,7 +122,6 @@ class FormController:
         return errors
 
     def _client_to_dict(self, client):
-        """Преобразовать объект клиента в словарь"""
         return {
             "client_id": client.client_id,
             "name": client.name,
