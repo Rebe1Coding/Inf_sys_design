@@ -66,7 +66,7 @@ function renderClientsTable(clients) {
 
         return `
             <tr onclick="showClientDetail(${client.client_id})">
-                <td>${rowIndex}</td>
+                <td>${client.client_id}</td>
                 <td>${client.name}</td>
                 <td>${client.contact_person || '-'}</td>
                 <td class="actions" onclick="event.stopPropagation()">

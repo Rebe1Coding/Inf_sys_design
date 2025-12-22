@@ -1,6 +1,9 @@
 from psycopg2 import sql
+from psycopg2 import errors
+from psycopg2.extras import RealDictCursor
 from typing import List, Optional
 from models.client import Client
+
 
 
 class Client_rep_DB:
@@ -43,21 +46,28 @@ class Client_rep_DB:
         return short_list
 
     def add_client(self, client_data: dict) -> Client:
-        """Добавить объект в список. ID генерируется в БД (SERIAL)."""
-        # Исключаем client_id, так как он auto-increment
         query = """
             INSERT INTO clients (name, ownership_type, address, phone, contact_person)
             VALUES (%(name)s, %(ownership_type)s, %(address)s, %(phone)s, %(contact_person)s)
             RETURNING client_id;
-        """
+            """
         conn = self._db.get_connection()
         cursor = conn.cursor()
-        cursor.execute(query, client_data)
-        new_id = cursor.fetchone()[0]
-        conn.commit()
-        cursor.close()
-        # Создаём и возвращаем объект
-        return Client(client_id=new_id, **client_data)
+        try:
+            cursor.execute(query, client_data)
+            new_id = cursor.fetchone()[0]
+            conn.commit()
+            return Client(client_id=new_id, **client_data)
+        except errors.UniqueViolation:
+            conn.rollback()
+            # Можно либо вернуть None, либо найти существующего клиента и вернуть его
+            # Например, найти по phone:
+            cursor.execute("SELECT client_id FROM clients WHERE phone = %(phone)s", client_data)
+            existing_id = cursor.fetchone()[0]
+            cursor.close()
+            return None
+        finally:
+            cursor.close()
 
     def update_client(self, client_id: int, new_data: dict) -> bool:
         """Заменить элемент списка по ID."""

@@ -29,8 +29,8 @@ class AddController:
                 }
 
             new_client = self._repository.add_client(client_data)
-            
-            return {
+            if new_client:
+                return {
                 "success": True,
                 "message": "Клиент успешно добавлен",
                 "client": {
@@ -40,8 +40,14 @@ class AddController:
                     "address": new_client.address,
                     "phone": new_client.phone,
                     "contact_person": new_client.contact_person
+                    }
                 }
-            }
+            else:
+                return {
+                    "success": False,
+                    "message": "Клиент уже существует",
+                    "client": None
+                }
         except ValueError as e:
             return {
                 "success": False,
