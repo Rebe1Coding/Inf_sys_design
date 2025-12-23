@@ -13,7 +13,7 @@ class Client:
         contact_person: str,
     ):
 
-        self.__client_id = self.validate_id(client_id)
+        self.__client_id = client_id
         self.__name = self.validate_name(name)
         self.__ownership_type = ownership_type.strip()
         self.__address = self.validate_address(address)
@@ -91,11 +91,6 @@ class Client:
             raise ValueError("Сумма кредита должна быть неотрицательным числом")
         self.__credit_sum = float(value)
 
-    @staticmethod
-    def validate_id(client_id: int) -> int:
-        if not isinstance(client_id, int) or client_id <= 0:
-            raise ValueError("ID клиента должен быть положительным числом")
-        return client_id
 
     @staticmethod
     def validate_name(name: str) -> str:
@@ -139,7 +134,7 @@ class Client:
         return f"{self.name} ({self.ownership_type})"
 
     def __eq__(self, other):
-        return isinstance(other, Client) and self.client_id == other.client_id
+        return isinstance(other, Client) and self.phone == other.phone
 
 
 class ShortClient:

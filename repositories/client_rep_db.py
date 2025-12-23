@@ -60,8 +60,6 @@ class Client_rep_DB:
             return Client(client_id=new_id, **client_data)
         except errors.UniqueViolation:
             conn.rollback()
-            # Можно либо вернуть None, либо найти существующего клиента и вернуть его
-            # Например, найти по phone:
             cursor.execute("SELECT client_id FROM clients WHERE phone = %(phone)s", client_data)
             existing_id = cursor.fetchone()[0]
             cursor.close()

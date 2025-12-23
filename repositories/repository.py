@@ -124,7 +124,26 @@ class ClientDBAdapter(ClientRepository):
         return self._db_repo.get_k_n_short_list(k, n)
 
     def add_client(self, client_data: dict) -> Client:
-        return self._db_repo.add_client(client_data)
+        temp_client = Client(
+            client_id=None,
+            name=client_data.get("name"),
+            ownership_type=client_data.get("ownership_type"),
+            address=client_data.get("address"),
+            phone=client_data.get("phone"),
+            contact_person=client_data.get("contact_person")
+        )
+
+    
+        for existing in self._clients:
+            if existing == temp_client:
+                return None  
+        
+        new_client = self._db_repo.add_client(client_data)
+        if new_client:
+            self._clients.append(new_client)
+
+        return new_client
+        
 
     def update_client(self, client_id: int, new_data: dict) -> bool:
         return self._db_repo.update_client(client_id, new_data)

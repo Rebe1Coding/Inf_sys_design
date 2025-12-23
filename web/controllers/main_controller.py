@@ -13,10 +13,6 @@ class MainController:
             from repositories.decarators.db_filter_decorator import FilteredClientDBRepository
             filter_sql = f"ownership_type = '{ownership_filter}'"
             order_by = sort_field if sort_field else "client_id"
-            with open("debug.log", "a") as f:
-                f.write("Атрибуты:\n")
-                f.write('\n'.join(dir(self._repository)))
-        
             filtered_repo = FilteredClientDBRepository(
                 self._repository._repository._db_repo, 
                 filter_sql=filter_sql,
