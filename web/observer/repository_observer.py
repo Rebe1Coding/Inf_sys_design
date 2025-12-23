@@ -63,3 +63,4 @@ class RepositoryObserver(Subject):
 
     def get_count(self):
         return self._repository.get_count()
+    

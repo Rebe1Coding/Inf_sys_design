@@ -1,4 +1,4 @@
-# repositories/db_filter_decorator.py
+
 
 
 class FilteredClientDBRepository:
@@ -26,7 +26,7 @@ class FilteredClientDBRepository:
         with conn.cursor() as cur:
             cur.execute(query)
             return [{"client_id": row[0], "name": row[1], "contact_person": row[2]} for row in cur.fetchall()]
-
+            
     def get_count(self) -> int:
         """Возвращает общее количество записей с учётом фильтра."""
         query = "SELECT COUNT(*) FROM clients"
